@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+const origin=process.argv[2]||'http://localhost:5173';
+if(!['localhost','127.0.0.1'].includes(new URL(origin).hostname))throw new Error('This test is local-only');
+const auth=await fetch(origin+'/signin-with-chatgpt?return_to=/',{redirect:'manual'});
+const cookie=auth.headers.get('set-cookie')?.split(';')[0];
+assert.ok(cookie,'local sign-in supplies a cookie');
+const get=async()=>{const r=await fetch(origin+'/api/daily',{headers:{cookie}});assert.equal(r.status,200);return r.json();};
+const daily=await get();
+assert.equal(daily.challenges.length,3);
+assert.equal(daily.signedIn,true);
+for(const c of daily.challenges){assert.equal(c.correctIndex,undefined);assert.equal(c.explanation,undefined);}
+const submit=async(body,opts={})=>fetch(origin+'/api/answer',{method:'POST',headers:{'Content-Type':'application/json',Origin:origin,cookie,...opts},body:JSON.stringify(body)});
+let r=await submit({day:daily.day,id:'phishing',answer:2},{cookie:''});assert.equal(r.status,401);
+r=await submit({day:daily.day,id:'phishing',answer:2},{Origin:'https://untrusted.example'});assert.equal(r.status,403);
+r=await submit({day:daily.day,id:'phishing',answer:99});assert.equal(r.status,400);
+r=await submit({day:'2000-01-01',id:'phishing',answer:2});assert.equal(r.status,409);
+const first=await (await submit({day:daily.day,id:'phishing',answer:2})).json();
+assert.ok(first.result);assert.equal(first.result.answer,2);assert.equal(first.result.score,100);
+const repeat=await (await submit({day:daily.day,id:'phishing',answer:0})).json();
+assert.deepEqual(repeat.result,first.result);assert.equal(repeat.stats.total,first.stats.total);
+const wrong=await (await submit({day:daily.day,id:'logs',answer:0})).json();assert.equal(wrong.result.score,0);assert.equal(wrong.result.correctIndex,1);
+const code=await (await submit({day:daily.day,id:'code',answer:3})).json();assert.equal(code.result.score,100);
+const reload=await get();assert.equal(reload.results.length,3);assert.equal(reload.stats.total,200);assert.equal(reload.stats.streak,1);
+console.log('PASS: authentication, origin checks, input validation, stale-date rejection, hidden answer keys, correct/incorrect scoring, idempotency, saved progress and streak.');
