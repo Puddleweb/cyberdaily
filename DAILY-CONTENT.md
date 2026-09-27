@@ -10,4 +10,5 @@ Use only fictional organisations, .example domains and documentation IP addresse
 
 Run node scripts/validate-content.mjs, then node scripts/run-framework.mjs build. Use the bundled Node 24 runtime at C:/Users/paris/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe and put its directory first on PATH for child processes. The dev preview reads source changes; a running production preview must be restarted after building. Preserve the known preview session; do not create duplicate servers. New packs are persisted when their date is first requested. If preparation is missed, the website clearly labels the starter fallback.
 
-Keep everything local. Publication and upload are not authorised. Do not add an API connection. Report completion or a blocker; stay quiet if the requested pack already exists.
+After validation and a successful build, commit only the daily content changes and push to the existing private repository https://github.com/Puddleweb/cyberdaily on main. The user authorised GitHub upload. Do not change repository visibility, deploy the website, force-push, overwrite concurrent edits, or commit credentials, local databases or unrelated files. If authentication fails, report the blocker. Do not add an AI API connection. Report completion or a blocker; stay quiet when there are no pending changes.
+
