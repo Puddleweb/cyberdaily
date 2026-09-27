@@ -26,3 +26,7 @@ Start with `npm run dev` and visit the printed URL. The local sign-in link suppl
 
 Current source has no AI network integration. The unused generation_runs table remains in the original migration to avoid rewriting database history; it is not used by the local daily workflow.
 
+
+## Revised challenge direction
+Future releases follow CHALLENGE-DESIGN.md: evidence-led investigations for technically literate adults, structured findings and partial-credit grading. Today's legacy quizzes stay unchanged. The current runtime still uses the legacy format; the daily task must implement and verify compatible investigation support before releasing the new format. Unpublished future multiple-choice drafts are subject to replacement.
+
